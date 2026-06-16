@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      roll_history: {
+        Row: {
+          created_at: string
+          id: string
+          rarity: string
+          rarity_value: number
+          site_name: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rarity: string
+          rarity_value: number
+          site_name: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rarity?: string
+          rarity_value?: number
+          site_name?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
