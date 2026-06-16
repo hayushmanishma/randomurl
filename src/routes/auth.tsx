@@ -162,7 +162,7 @@ function AuthPage() {
               disabled={!!loading}
               className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold py-3 rounded-md hover:opacity-90 transition disabled:opacity-50"
             >
-              <span className="text-lg leading-none">♥</span>
+              <LovableIcon />
               {loading === "lovable" ? "Connecting..." : "Continue with Lovable"}
             </button>
           </div>
@@ -182,5 +182,13 @@ function GoogleIcon() {
 function AppleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M16.365 1.43c0 1.14-.49 2.27-1.21 3.04-.78.85-2.06 1.51-3.06 1.43-.12-1.11.42-2.26 1.15-3.02.81-.86 2.18-1.5 3.12-1.45zM20.5 17.04c-.55 1.27-.82 1.84-1.53 2.97-.99 1.58-2.39 3.55-4.12 3.57-1.54.01-1.93-1.01-4.02-1-2.09.01-2.52 1.01-4.06 1-1.73-.02-3.06-1.79-4.05-3.37C.06 16.99-.23 11.96 1.76 9.29c1.41-1.88 3.63-2.98 5.72-2.98 2.13 0 3.47 1.16 5.23 1.16 1.71 0 2.75-1.17 5.21-1.17 1.86 0 3.83 1.02 5.23 2.77-4.6 2.52-3.85 9.1.35 10.97z"/></svg>
+  );
+}
+function LovableIcon() {
+  // Lovable heart wordmark glyph
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 21s-7.5-4.6-9.6-9.1C1 8.6 3 5 6.4 5c1.9 0 3.6 1 4.6 2.5l1 1.5 1-1.5C14 6 15.7 5 17.6 5 21 5 23 8.6 21.6 11.9 19.5 16.4 12 21 12 21z"/>
+    </svg>
   );
 }

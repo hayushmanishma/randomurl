@@ -78,20 +78,32 @@ export function AuroraBackground({ boost = false }: { boost?: boolean }) {
 
       <style>{`
         @keyframes aurora-drift-1 {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50% { transform: translate(120px,80px) scale(1.15); }
+          0%   { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
+          25%  { transform: translate(180px,60px) scale(1.15); }
+          50%  { transform: translate(120px,220px) scale(1.25); filter: hue-rotate(40deg); }
+          75%  { transform: translate(-60px,140px) scale(1.1); }
+          100% { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
         }
         @keyframes aurora-drift-2 {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50% { transform: translate(-100px,120px) scale(1.2); }
+          0%   { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
+          25%  { transform: translate(-160px,90px) scale(1.2); }
+          50%  { transform: translate(-220px,220px) scale(1.3); filter: hue-rotate(-30deg); }
+          75%  { transform: translate(-80px,260px) scale(1.15); }
+          100% { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
         }
         @keyframes aurora-drift-3 {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50% { transform: translate(80px,-100px) scale(1.1); }
+          0%   { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
+          25%  { transform: translate(140px,-120px) scale(1.18); }
+          50%  { transform: translate(240px,-60px) scale(1.28); filter: hue-rotate(50deg); }
+          75%  { transform: translate(80px,-200px) scale(1.12); }
+          100% { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
         }
         @keyframes aurora-drift-4 {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50% { transform: translate(-120px,-80px) scale(1.18); }
+          0%   { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
+          25%  { transform: translate(-180px,-100px) scale(1.22); }
+          50%  { transform: translate(-100px,-240px) scale(1.3); filter: hue-rotate(-40deg); }
+          75%  { transform: translate(60px,-160px) scale(1.15); }
+          100% { transform: translate(0,0) scale(1); filter: hue-rotate(0deg); }
         }
       `}</style>
     </div>

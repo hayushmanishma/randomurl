@@ -34,6 +34,9 @@ function SettingsPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [s, setS] = useState<Settings>(DEFAULTS);
+  const [displayName, setDisplayName] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameMsg, setNameMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", replace: true });
@@ -43,10 +46,34 @@ function SettingsPage() {
     setS(loadSettings());
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.display_name) setDisplayName(data.display_name);
+      });
+  }, [user]);
+
   function update<K extends keyof Settings>(k: K, v: Settings[K]) {
     const next = { ...s, [k]: v };
     setS(next);
     localStorage.setItem(KEY, JSON.stringify(next));
+  }
+
+  async function saveDisplayName() {
+    if (!user || !displayName.trim()) return;
+    setSavingName(true);
+    setNameMsg(null);
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({ id: user.id, display_name: displayName.trim() }, { onConflict: "id" });
+    setSavingName(false);
+    setNameMsg(error ? `שגיאה: ${error.message}` : "נשמר ✓");
+    setTimeout(() => setNameMsg(null), 2500);
   }
 
   async function deleteAccount() {
@@ -69,6 +96,28 @@ function SettingsPage() {
         <div className="bg-black/40 backdrop-blur rounded-2xl p-6 border border-white/10 space-y-4">
           <div className="text-sm text-white/60">משתמש מחובר</div>
           <div className="font-mono text-sm bg-white/5 px-3 py-2 rounded">{user.email}</div>
+        </div>
+
+        <div className="bg-black/40 backdrop-blur rounded-2xl p-6 border border-white/10 mt-4 space-y-3">
+          <label className="block text-sm text-white/70">שם תצוגה (יופיע בלוח התוצאות)</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              maxLength={32}
+              placeholder="השם שלך"
+              className="flex-1 bg-white/5 border border-white/15 rounded-md px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:border-pink-500"
+            />
+            <button
+              onClick={saveDisplayName}
+              disabled={savingName || !displayName.trim()}
+              className="px-4 py-2 rounded-md bg-pink-500 hover:bg-pink-400 font-bold disabled:opacity-50"
+            >
+              {savingName ? "..." : "שמור"}
+            </button>
+          </div>
+          {nameMsg && <div className="text-xs text-white/60">{nameMsg}</div>}
         </div>
 
         <div className="bg-black/40 backdrop-blur rounded-2xl p-6 border border-white/10 mt-4 space-y-5">
