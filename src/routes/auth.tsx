@@ -162,7 +162,7 @@ function AuthPage() {
               disabled={!!loading}
               className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold py-3 rounded-md hover:opacity-90 transition disabled:opacity-50"
             >
-              <span className="text-lg leading-none">♥</span>
+              <LovableIcon />
               {loading === "lovable" ? "Connecting..." : "Continue with Lovable"}
             </button>
           </div>
