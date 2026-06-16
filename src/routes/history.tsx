@@ -73,8 +73,7 @@ function HistoryPage() {
         ) : (
           <div className="space-y-2">
             {rows.map((r) => {
-              const meta = getRarityMeta(0); // fallback
-              const tierMeta = { color: "from-slate-500 to-slate-600", emoji: "⚪", ...metaFor(r.rarity) };
+              const tierMeta = metaFor(r.rarity);
               return (
                 <a
                   key={r.id}
