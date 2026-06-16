@@ -2,16 +2,17 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
-import { BackgroundAnimation } from "@/components/BackgroundAnimation";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import { NavBar } from "@/components/NavBar";
 import { rollRandomSite } from "@/lib/random.functions";
-import { SITES, TOTAL_WEIGHT } from "@/lib/sites";
+import { SITES } from "@/lib/sites";
+import { Sparkles, ExternalLink, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "אתר רנדומלי - שגר אותי!" },
-      { name: "description", content: "לחץ וקבל אתר רנדומלי עם רמות נדירות" },
+      { title: "Portalverse — One click, infinite possibilities" },
+      { name: "description", content: "Launch into a random corner of the web. Discover sites by rarity." },
     ],
   }),
   component: HomePage,
@@ -33,8 +34,7 @@ function HomePage() {
   const [result, setResult] = useState<Result | null>(null);
   const [rolling, setRolling] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [animBoost, setAnimBoost] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [boost, setBoost] = useState(false);
   const lastClickRef = useRef(0);
 
   useEffect(() => {
@@ -42,95 +42,151 @@ function HomePage() {
   }, [user, loading, navigate]);
 
   async function handleRoll(e: React.MouseEvent) {
-    // Anti-cheat: require a real, trusted (user-initiated) event.
     if (!e.isTrusted) {
-      setErr("🚫 זוהתה פעולה אוטומטית");
+      setErr("🚫 פעולה אוטומטית זוהתה");
       return;
     }
-    // Anti-cheat: client-side cooldown (server enforces real limit).
     const now = Date.now();
     if (now - lastClickRef.current < 400) return;
     lastClickRef.current = now;
 
     setErr(null);
     setRolling(true);
-    setAnimBoost(true);
+    setBoost(true);
     try {
       const data = await roll();
       setResult(data);
-      // Open in a new tab using the trusted click (must be sync-ish).
       window.open(data.url, "_blank", "noopener,noreferrer");
     } catch (e: any) {
       setErr(e?.message ?? "שגיאה");
     } finally {
       setRolling(false);
-      setTimeout(() => setAnimBoost(false), 1500);
+      setTimeout(() => setBoost(false), 1500);
     }
   }
 
   if (loading || !user) {
-    return <div className="min-h-screen bg-black flex items-center justify-center text-white">טוען...</div>;
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center text-white/60 text-sm">
+        טוען...
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen relative md:pr-64" dir="rtl">
-      <BackgroundAnimation speed={animBoost ? 100 : 900} />
+    <div className="min-h-screen relative md:pr-72 text-white" dir="rtl">
+      <AuroraBackground boost={boost} />
       <NavBar />
 
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-white">
-        <div className="max-w-2xl w-full text-center space-y-8 animate-[fade-in_0.5s_ease-out]">
-          <h1 className="text-6xl md:text-8xl font-black tracking-tight drop-shadow-2xl">
-            🎲 שגר אותי!
+      <main className="min-h-screen flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-2xl text-center space-y-10">
+          {/* Eyebrow */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-xl text-xs uppercase tracking-[0.25em] text-white/60">
+            <Sparkles size={12} className="text-[#FBBC05]" />
+            {SITES.length.toLocaleString()} portals ready
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-[0.95]">
+            <span className="block text-white">One click.</span>
+            <span className="block bg-gradient-to-r from-[#4285F4] via-[#EA4335] to-[#FBBC05] bg-clip-text text-transparent">
+              Infinite possibilities.
+            </span>
           </h1>
-          <p className="text-lg text-white/80">
-            {SITES.length.toLocaleString()} אתרים בטוחים. נדירות וגניקה רנדומלית מוחלטת.
+
+          <p className="text-white/50 max-w-md mx-auto text-base">
+            כפתור אחד. רשת שלמה. כל לחיצה משגרת אותך לפינה אקראית באינטרנט — מהשכיח ועד המיתי.
           </p>
 
-          <button
-            ref={buttonRef}
-            onClick={handleRoll}
-            disabled={rolling}
-            className={`group relative px-14 py-7 text-3xl font-black rounded-full bg-white text-purple-900 shadow-2xl transition-all duration-200 ${
-              rolling ? "scale-95 animate-pulse" : "hover:scale-110 active:scale-95 hover:shadow-pink-500/50"
-            }`}
-          >
-            {rolling ? "🌀 משגר..." : "🚀 שגר אותי לאתר רנדומלי!"}
-          </button>
+          {/* Launch button — Apple Vision orb */}
+          <div className="relative flex items-center justify-center py-6">
+            {/* glow ring */}
+            <div
+              className={`absolute w-72 h-72 rounded-full blur-3xl opacity-60 transition-opacity duration-500 ${
+                rolling ? "opacity-90 animate-pulse" : ""
+              }`}
+              style={{
+                background:
+                  "conic-gradient(from 0deg, #4285F4, #EA4335, #FBBC05, #34A853, #4285F4)",
+              }}
+            />
+            <button
+              onClick={handleRoll}
+              disabled={rolling}
+              className={`relative group w-48 h-48 md:w-56 md:h-56 rounded-full bg-white/[0.08] backdrop-blur-2xl border border-white/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_30px_60px_-20px_rgba(0,0,0,0.8)] transition-all duration-300 ${
+                rolling ? "scale-95" : "hover:scale-105 active:scale-95"
+              }`}
+            >
+              <span
+                className="absolute inset-1 rounded-full bg-gradient-to-b from-white/10 to-transparent pointer-events-none"
+                aria-hidden
+              />
+              <span className="relative flex flex-col items-center justify-center gap-2">
+                <Zap
+                  size={42}
+                  className={`text-white transition-transform ${
+                    rolling ? "animate-spin" : "group-hover:scale-110"
+                  }`}
+                  strokeWidth={2.2}
+                />
+                <span className="text-base font-semibold tracking-wide">
+                  {rolling ? "Launching" : "Launch"}
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                  tap to portal
+                </span>
+              </span>
+            </button>
+          </div>
 
           {err && (
-            <div className="bg-red-500/20 border border-red-400 text-red-200 rounded-2xl p-4 animate-[fade-in_0.3s]">
+            <div className="rounded-2xl px-5 py-3 bg-red-500/10 border border-red-400/30 text-red-200 text-sm backdrop-blur-xl">
               {err}
             </div>
           )}
 
           {result && (
-            <div
-              className={`mt-8 rounded-3xl p-6 bg-gradient-to-br ${result.color} shadow-2xl animate-[scale-in_0.4s_ease-out] border-2 border-white/30`}
-            >
-              <div className="text-6xl mb-2">{result.emoji}</div>
-              <div className="text-2xl font-black uppercase tracking-widest opacity-90">
-                {result.rarity}
+            <div className="mt-2 rounded-3xl p-6 bg-white/[0.05] border border-white/10 backdrop-blur-2xl shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] animate-[fade-in_0.4s_ease-out] text-right">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                    Rarity
+                  </div>
+                  <div
+                    className={`mt-1 text-xl font-semibold bg-gradient-to-r ${result.color} bg-clip-text text-transparent uppercase`}
+                  >
+                    {result.emoji} {result.rarity}
+                  </div>
+                </div>
+                <div className="text-left">
+                  <div className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                    Odds
+                  </div>
+                  <div className="text-2xl font-bold font-mono">
+                    1<span className="text-white/40">/</span>
+                    {result.rarityValue.toLocaleString()}
+                  </div>
+                </div>
               </div>
-              <div className="text-4xl font-black mt-1">
-                1 מתוך {result.rarityValue.toLocaleString()}
+              <div className="mt-5 pt-5 border-t border-white/10 flex items-center justify-between gap-3">
+                <div className="truncate">
+                  <div className="text-sm text-white/50">אתר</div>
+                  <div className="text-base font-medium truncate">{result.name}</div>
+                </div>
+                <a
+                  href={result.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white text-black text-xs font-semibold hover:bg-white/90 transition"
+                >
+                  <ExternalLink size={13} />
+                  פתח
+                </a>
               </div>
-              <div className="text-xl font-bold mt-4">{result.name}</div>
-              <a
-                href={result.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-3 text-sm bg-black/30 px-4 py-2 rounded-full hover:bg-black/50"
-              >
-                פתח שוב ↗
-              </a>
             </div>
           )}
-
-          <div className="text-xs text-white/40">
-            סך כל המשקל במאגר: {Math.round(TOTAL_WEIGHT).toLocaleString()}
-          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
