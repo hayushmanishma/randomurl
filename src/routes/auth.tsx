@@ -5,7 +5,7 @@ import { lovable } from "@/integrations/lovable";
 import { PortalAnimation } from "@/components/PortalAnimation";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Portal — Sign in" }] }),
+  head: () => ({ meta: [{ title: "Portalverse — Sign in" }] }),
   component: AuthPage,
 });
 
@@ -13,19 +13,30 @@ function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
 
   useEffect(() => {
+    // Fast redirect once a session is detected (catches OAuth return).
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) navigate({ to: "/", replace: true });
     });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION")) {
+        navigate({ to: "/", replace: true });
+      }
+    });
+    return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
-  async function oauth(provider: "google" | "apple" | "microsoft") {
+  async function oauth(provider: "google" | "apple") {
     setErr(null);
     setLoading(provider);
     try {
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: window.location.origin + "/auth",
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
@@ -36,31 +47,100 @@ function AuthPage() {
     }
   }
 
+  async function emailAuth(e: React.FormEvent) {
+    e.preventDefault();
+    setErr(null);
+    setLoading("email");
+    try {
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin + "/auth",
+            data: { full_name: name || email.split("@")[0] },
+          },
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      }
+      navigate({ to: "/", replace: true });
+    } catch (e: any) {
+      setErr(e?.message ?? "שגיאה");
+      setLoading(null);
+    }
+  }
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
       <PortalAnimation />
 
-      {/* Brand */}
       <div className="absolute top-6 left-8 z-10">
         <h2 className="text-2xl font-black tracking-widest text-pink-500 drop-shadow-[0_0_20px_rgba(236,72,153,0.6)]">
           PORTAL<span className="text-white">VERSE</span>
         </h2>
       </div>
 
-      {/* Hero copy + buttons */}
-      <div className="relative z-10 min-h-screen flex items-center">
-        <div className="max-w-xl px-8 md:px-16 py-20">
-          <h1 className="text-6xl md:text-7xl font-black uppercase leading-[0.95] tracking-tight">
-            A Universe<br />
-            Of Websites.<br />
-            <span className="text-pink-500">One Click.</span>
+      <div className="relative z-10 min-h-screen flex items-center justify-center md:justify-start">
+        <div className="w-full max-w-md px-8 md:px-16 py-20">
+          <h1 className="text-5xl md:text-6xl font-black uppercase leading-[0.95] tracking-tight">
+            One Click.<br />
+            <span className="text-pink-500">Infinite Possibilities.</span>
           </h1>
-          <p className="mt-6 text-lg text-white/80 max-w-md">
-            Thousands of curated sites — rare gems, deep cuts, wild experiments.
-            One button teleports you somewhere new.
-          </p>
 
-          <div className="mt-10 space-y-3 max-w-sm">
+          <form onSubmit={emailAuth} className="mt-10 space-y-3">
+            {mode === "signup" && (
+              <input
+                type="text"
+                placeholder="Display name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full bg-white/5 border border-white/15 rounded-md px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-pink-500 transition"
+              />
+            )}
+            <input
+              type="email"
+              required
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-white/5 border border-white/15 rounded-md px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-pink-500 transition"
+            />
+            <input
+              type="password"
+              required
+              minLength={6}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-white/5 border border-white/15 rounded-md px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-pink-500 transition"
+            />
+            <button
+              type="submit"
+              disabled={!!loading}
+              className="w-full bg-pink-500 hover:bg-pink-400 text-white font-bold py-3 rounded-md transition disabled:opacity-50"
+            >
+              {loading === "email" ? "..." : mode === "signup" ? "Create account" : "Sign in"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { setMode(mode === "signup" ? "signin" : "signup"); setErr(null); }}
+              className="w-full text-xs text-white/50 hover:text-white/80 pt-1"
+            >
+              {mode === "signup" ? "Have an account? Sign in" : "New here? Create an account"}
+            </button>
+          </form>
+
+          <div className="flex items-center gap-3 my-5">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-xs text-white/40 uppercase tracking-wider">or</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+
+          <div className="space-y-2">
             <button
               onClick={() => oauth("google")}
               disabled={!!loading}
@@ -69,7 +149,6 @@ function AuthPage() {
               <GoogleIcon />
               {loading === "google" ? "Connecting..." : "Continue with Google"}
             </button>
-
             <button
               onClick={() => oauth("apple")}
               disabled={!!loading}
@@ -78,21 +157,9 @@ function AuthPage() {
               <AppleIcon />
               {loading === "apple" ? "Connecting..." : "Continue with Apple"}
             </button>
-
-            <button
-              onClick={() => oauth("microsoft")}
-              disabled={!!loading}
-              className="w-full flex items-center justify-center gap-3 bg-black border border-white/20 text-white font-semibold py-3 rounded-md hover:bg-white/5 transition disabled:opacity-50"
-            >
-              <MicrosoftIcon />
-              {loading === "microsoft" ? "Connecting..." : "Continue with Microsoft"}
-            </button>
-
-            {err && <div className="text-red-400 text-sm">{err}</div>}
-            <p className="text-xs text-white/40 pt-2">
-              Sign in is required. We support Google, Apple and Microsoft accounts.
-            </p>
           </div>
+
+          {err && <div className="mt-4 text-red-400 text-sm">{err}</div>}
         </div>
       </div>
     </div>
@@ -107,10 +174,5 @@ function GoogleIcon() {
 function AppleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M16.365 1.43c0 1.14-.49 2.27-1.21 3.04-.78.85-2.06 1.51-3.06 1.43-.12-1.11.42-2.26 1.15-3.02.81-.86 2.18-1.5 3.12-1.45zM20.5 17.04c-.55 1.27-.82 1.84-1.53 2.97-.99 1.58-2.39 3.55-4.12 3.57-1.54.01-1.93-1.01-4.02-1-2.09.01-2.52 1.01-4.06 1-1.73-.02-3.06-1.79-4.05-3.37C.06 16.99-.23 11.96 1.76 9.29c1.41-1.88 3.63-2.98 5.72-2.98 2.13 0 3.47 1.16 5.23 1.16 1.71 0 2.75-1.17 5.21-1.17 1.86 0 3.83 1.02 5.23 2.77-4.6 2.52-3.85 9.1.35 10.97z"/></svg>
-  );
-}
-function MicrosoftIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
   );
 }
