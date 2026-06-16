@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "RandomURL" },
+      { name: "description", content: "A website that allows you to explore new thing in the internet." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "RandomURL" },
+      { property: "og:description", content: "A website that allows you to explore new thing in the internet." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "RandomURL" },
+      { name: "twitter:description", content: "A website that allows you to explore new thing in the internet." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/65Bp7tzd1IVoAwhEFefdzMm4RDH3/social-images/social-1781627776673-Gemini_Generated_Image_stlgeustlgeustlg.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/65Bp7tzd1IVoAwhEFefdzMm4RDH3/social-images/social-1781627776673-Gemini_Generated_Image_stlgeustlgeustlg.webp" },
     ],
     links: [
       {
