@@ -64,22 +64,22 @@ export type Database = {
       }
     }
     Views: {
-      leaderboard: {
-        Row: {
-          best_rarity: number | null
-          created_at: string | null
-          display_name: string | null
-          rarity: string | null
-          site_name: string | null
-          total_rolls: number | null
-          url: string | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_leaderboard: {
+        Args: never
+        Returns: {
+          best_rarity: number
+          created_at: string
+          display_name: string
+          rarity: string
+          site_name: string
+          total_rolls: number
+          url: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
