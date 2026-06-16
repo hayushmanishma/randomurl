@@ -21,5 +21,5 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       .order("best_rarity", { ascending: false })
       .limit(100);
     if (error) throw new Error(error.message);
-    return (data ?? []) as LeaderboardEntry[];
+    return (data ?? []) as unknown as LeaderboardEntry[];
   });
