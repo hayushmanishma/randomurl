@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { BackgroundAnimation } from "@/components/BackgroundAnimation";
 import { NavBar } from "@/components/NavBar";
-import { metaFor as _unused } from "@/lib/sites";
+
 
 export const Route = createFileRoute("/history")({
   head: () => ({ meta: [{ title: "היסטוריה - אתר רנדומלי" }] }),
