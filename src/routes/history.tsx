@@ -53,7 +53,7 @@ function HistoryPage() {
   if (loading || !user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">טוען...</div>;
 
   return (
-    <div className="min-h-screen relative" dir="rtl">
+    <div className="min-h-screen relative md:pr-64" dir="rtl">
       <BackgroundAnimation speed={1500} />
       <NavBar />
       <div className="pt-24 pb-12 px-4 max-w-3xl mx-auto text-white">
