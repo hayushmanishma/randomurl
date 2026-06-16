@@ -31,7 +31,7 @@ function AuthPage() {
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
-  async function oauth(provider: "google" | "apple") {
+  async function oauth(provider: "google" | "apple" | "lovable") {
     setErr(null);
     setLoading(provider);
     try {
@@ -156,6 +156,14 @@ function AuthPage() {
             >
               <AppleIcon />
               {loading === "apple" ? "Connecting..." : "Continue with Apple"}
+            </button>
+            <button
+              onClick={() => oauth("lovable")}
+              disabled={!!loading}
+              className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold py-3 rounded-md hover:opacity-90 transition disabled:opacity-50"
+            >
+              <span className="text-lg leading-none">♥</span>
+              {loading === "lovable" ? "Connecting..." : "Continue with Lovable"}
             </button>
           </div>
 

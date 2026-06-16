@@ -15,11 +15,7 @@ export type LeaderboardEntry = {
 export const getLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<LeaderboardEntry[]> => {
-    const { data, error } = await context.supabase
-      .from("leaderboard" as any)
-      .select("*")
-      .order("best_rarity", { ascending: false })
-      .limit(100);
+    const { data, error } = await context.supabase.rpc("get_leaderboard" as any);
     if (error) throw new Error(error.message);
     return (data ?? []) as unknown as LeaderboardEntry[];
   });
