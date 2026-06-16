@@ -73,7 +73,7 @@ function HomePage() {
   }
 
   return (
-    <div className="min-h-screen relative" dir="rtl">
+    <div className="min-h-screen relative md:pr-64" dir="rtl">
       <BackgroundAnimation speed={animBoost ? 100 : 900} />
       <NavBar />
 
