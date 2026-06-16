@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { BackgroundAnimation } from "@/components/BackgroundAnimation";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import { NavBar } from "@/components/NavBar";
 
 
@@ -53,8 +53,8 @@ function HistoryPage() {
   if (loading || !user) return <div className="min-h-screen bg-black text-white flex items-center justify-center">טוען...</div>;
 
   return (
-    <div className="min-h-screen relative md:pr-64" dir="rtl">
-      <BackgroundAnimation speed={1500} />
+    <div className="min-h-screen relative md:pr-72" dir="rtl">
+      <AuroraBackground />
       <NavBar />
       <div className="pt-24 pb-12 px-4 max-w-3xl mx-auto text-white">
         <div className="flex items-center justify-between mb-6">

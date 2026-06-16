@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
 import { NavBar } from "@/components/NavBar";
-import { BackgroundAnimation } from "@/components/BackgroundAnimation";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import { getLeaderboard, type LeaderboardEntry } from "@/lib/leaderboard.functions";
 import { Trophy, Medal, Award } from "lucide-react";
 
@@ -40,8 +40,8 @@ function LeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen relative md:pr-64" dir="rtl">
-      <BackgroundAnimation speed={1500} />
+    <div className="min-h-screen relative md:pr-72" dir="rtl">
+      <AuroraBackground />
       <NavBar />
 
       <div className="relative z-10 px-6 py-10 max-w-4xl mx-auto text-white">
