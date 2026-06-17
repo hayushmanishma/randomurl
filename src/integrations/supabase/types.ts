@@ -14,26 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
+      name_suggestions: {
         Row: {
           created_at: string
-          display_name: string
+          current_name: string | null
           id: string
+          reason: string | null
+          status: string
+          suggested_name: string
+          user_id: string
         }
         Insert: {
           created_at?: string
-          display_name: string
-          id: string
+          current_name?: string | null
+          id?: string
+          reason?: string | null
+          status?: string
+          suggested_name: string
+          user_id: string
         }
         Update: {
           created_at?: string
+          current_name?: string | null
+          id?: string
+          reason?: string | null
+          status?: string
+          suggested_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          ban_reason: string | null
+          banned: boolean
+          created_at: string
+          display_name: string
+          id: string
+          warning: string | null
+        }
+        Insert: {
+          ban_reason?: string | null
+          banned?: boolean
+          created_at?: string
+          display_name: string
+          id: string
+          warning?: string | null
+        }
+        Update: {
+          ban_reason?: string | null
+          banned?: boolean
+          created_at?: string
           display_name?: string
           id?: string
+          warning?: string | null
         }
         Relationships: []
       }
       roll_history: {
         Row: {
+          category: string
           created_at: string
           id: string
           rarity: string
@@ -43,6 +83,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string
           created_at?: string
           id?: string
           rarity: string
@@ -52,6 +93,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          category?: string
           created_at?: string
           id?: string
           rarity?: string
@@ -62,15 +104,77 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_leaderboard: {
+      admin_list_suggestions: {
         Args: never
         Returns: {
+          created_at: string
+          current_name: string
+          display_name: string
+          id: string
+          reason: string
+          status: string
+          suggested_name: string
+          user_id: string
+        }[]
+      }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          ban_reason: string
+          banned: boolean
+          created_at: string
+          display_name: string
+          id: string
+          total_rolls: number
+          warning: string
+        }[]
+      }
+      admin_resolve_suggestion: {
+        Args: { _approve: boolean; _id: string }
+        Returns: undefined
+      }
+      admin_update_user: {
+        Args: {
+          _ban_reason?: string
+          _banned?: boolean
+          _display_name?: string
+          _user_id: string
+          _warning?: string
+        }
+        Returns: undefined
+      }
+      claim_admin: { Args: never; Returns: boolean }
+      get_leaderboard: {
+        Args: { _category?: string }
+        Returns: {
           best_rarity: number
+          category: string
           created_at: string
           display_name: string
           rarity: string
@@ -80,9 +184,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -209,6 +320,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
