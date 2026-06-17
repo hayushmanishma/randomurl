@@ -1,9 +1,11 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Rocket, History, Search, Trophy, Settings, LogOut, Menu, X } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { checkIsAdmin } from "@/lib/admin.functions";
+import { Rocket, History, Search, Trophy, Settings, LogOut, Menu, ShieldCheck } from "lucide-react";
 
-const items = [
+const baseItems = [
   { to: "/", label: "הגרלה", icon: Rocket, accent: "#4285F4" },
   { to: "/leaderboard", label: "לוח תוצאות", icon: Trophy, accent: "#FBBC05" },
   { to: "/history", label: "היסטוריה", icon: History, accent: "#34A853" },
