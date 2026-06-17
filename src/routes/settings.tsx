@@ -122,6 +122,8 @@ function SettingsPage() {
           {nameMsg && <div className="text-xs text-white/60">{nameMsg}</div>}
         </div>
 
+        <SuggestNameCard />
+
         <div className="bg-black/40 backdrop-blur rounded-2xl p-6 border border-white/10 mt-4 space-y-5">
           <Toggle label="🎬 אנימציית רקע" value={s.bgAnimation} onChange={(v) => update("bgAnimation", v)} />
           <Toggle label="🪟 פתח בלשונית חדשה" value={s.openInNewTab} onChange={(v) => update("openInNewTab", v)} />
