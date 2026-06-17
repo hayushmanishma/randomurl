@@ -8,14 +8,16 @@ export type LeaderboardEntry = {
   rarity: string;
   site_name: string;
   url: string;
+  category: string;
   created_at: string;
   total_rolls: number;
 };
 
 export const getLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<LeaderboardEntry[]> => {
-    const { data, error } = await context.supabase.rpc("get_leaderboard" as any);
+  .inputValidator((input: { category?: string | null } | undefined) => ({ category: input?.category ?? null }))
+  .handler(async ({ context, data }): Promise<LeaderboardEntry[]> => {
+    const { data: rows, error } = await (context.supabase as any).rpc("get_leaderboard", { _category: data.category });
     if (error) throw new Error(error.message);
-    return (data ?? []) as unknown as LeaderboardEntry[];
+    return (rows ?? []) as LeaderboardEntry[];
   });

@@ -1,9 +1,11 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Rocket, History, Search, Trophy, Settings, LogOut, Menu, X } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { checkIsAdmin } from "@/lib/admin.functions";
+import { Rocket, History, Search, Trophy, Settings, LogOut, Menu, ShieldCheck } from "lucide-react";
 
-const items = [
+const baseItems = [
   { to: "/", label: "הגרלה", icon: Rocket, accent: "#4285F4" },
   { to: "/leaderboard", label: "לוח תוצאות", icon: Trophy, accent: "#FBBC05" },
   { to: "/history", label: "היסטוריה", icon: History, accent: "#34A853" },
@@ -15,6 +17,16 @@ export function NavBar() {
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const check = useServerFn(checkIsAdmin);
+
+  useEffect(() => {
+    check().then((r) => setIsAdmin(r.isAdmin)).catch(() => setIsAdmin(false));
+  }, [check]);
+
+  const items = isAdmin
+    ? [...baseItems, { to: "/admin", label: "ניהול", icon: ShieldCheck, accent: "#F472B6" } as const]
+    : baseItems;
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -23,13 +35,12 @@ export function NavBar() {
 
   return (
     <>
-      {/* Mobile toggle */}
       <button
         onClick={() => setOpen((v) => !v)}
         className="md:hidden fixed top-4 right-4 z-50 w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-2xl border border-white/15 text-white flex items-center justify-center shadow-2xl"
         aria-label="תפריט"
       >
-        {open ? <X size={20} /> : <Menu size={20} />}
+        <Menu size={20} />
       </button>
 
       {open && (

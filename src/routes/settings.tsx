@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/hooks/useAuth";
 import { AuroraBackground } from "@/components/AuroraBackground";
 import { NavBar } from "@/components/NavBar";
 import { supabase } from "@/integrations/supabase/client";
+import { submitNameSuggestion } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "הגדרות" }] }),
@@ -120,6 +122,8 @@ function SettingsPage() {
           {nameMsg && <div className="text-xs text-white/60">{nameMsg}</div>}
         </div>
 
+        <SuggestNameCard />
+
         <div className="bg-black/40 backdrop-blur rounded-2xl p-6 border border-white/10 mt-4 space-y-5">
           <Toggle label="🎬 אנימציית רקע" value={s.bgAnimation} onChange={(v) => update("bgAnimation", v)} />
           <Toggle label="🪟 פתח בלשונית חדשה" value={s.openInNewTab} onChange={(v) => update("openInNewTab", v)} />
@@ -162,5 +166,47 @@ function Toggle({ label, value, onChange }: { label: string; value: boolean; onC
         <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow transition-all ${value ? "right-0.5" : "right-[26px]"}`} />
       </span>
     </button>
+  );
+}
+
+function SuggestNameCard() {
+  const submit = useServerFn(submitNameSuggestion);
+  const [name, setName] = useState("");
+  const [reason, setReason] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function send() {
+    setBusy(true); setMsg(null);
+    try {
+      await submit({ data: { suggestedName: name, reason } });
+      setMsg("ההצעה נשלחה לאדמין ✓");
+      setName(""); setReason("");
+    } catch (e: any) { setMsg(e?.message ?? "שגיאה"); }
+    finally { setBusy(false); setTimeout(() => setMsg(null), 4000); }
+  }
+
+  return (
+    <div className="bg-black/40 backdrop-blur rounded-2xl p-6 border border-white/10 mt-4 space-y-3">
+      <div>
+        <h3 className="font-semibold">💡 הצע שם תצוגה לאדמין</h3>
+        <p className="text-xs text-white/50 mt-0.5">אם אתה רוצה שם מיוחד שזקוק לאישור, שלח הצעה.</p>
+      </div>
+      <input
+        value={name} onChange={(e) => setName(e.target.value)} maxLength={40} placeholder="שם מוצע"
+        className="w-full bg-white/5 border border-white/15 rounded-md px-3 py-2 text-white placeholder-white/40"
+      />
+      <input
+        value={reason} onChange={(e) => setReason(e.target.value)} maxLength={200} placeholder="סיבה (אופציונלי)"
+        className="w-full bg-white/5 border border-white/15 rounded-md px-3 py-2 text-white placeholder-white/40 text-sm"
+      />
+      <button
+        onClick={send} disabled={busy || name.trim().length < 2}
+        className="px-4 py-2 rounded-md bg-violet-500 hover:bg-violet-400 font-bold disabled:opacity-50"
+      >
+        {busy ? "..." : "שלח הצעה"}
+      </button>
+      {msg && <div className="text-xs text-white/60">{msg}</div>}
+    </div>
   );
 }

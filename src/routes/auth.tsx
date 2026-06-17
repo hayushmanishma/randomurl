@@ -35,12 +35,21 @@ function AuthPage() {
     setErr(null);
     setLoading(provider);
     try {
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin + "/auth",
+      if (provider === "lovable") {
+        const result = await lovable.auth.signInWithOAuth("lovable", {
+          redirect_uri: window.location.origin + "/auth",
+        });
+        if (result.error) throw result.error;
+        if (result.redirected) return;
+        navigate({ to: "/", replace: true });
+        return;
+      }
+      // Google/Apple → direct Supabase OAuth (goes straight to provider, no Lovable middle step)
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: window.location.origin + "/auth" },
       });
-      if (result.error) throw result.error;
-      if (result.redirected) return;
-      navigate({ to: "/", replace: true });
+      if (error) throw error;
     } catch (e: any) {
       setErr(e?.message ?? "Sign-in failed");
       setLoading(null);
