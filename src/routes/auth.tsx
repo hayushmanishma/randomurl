@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { PortalAnimation } from "@/components/PortalAnimation";
@@ -196,7 +197,7 @@ function AuthPage() {
 }
 
 function OAuthButton({ children, label, loading, disabled, onClick, dark, lovable }: {
-  children: React.ReactNode;
+  children: ReactNode;
   label: string;
   loading: boolean;
   disabled: boolean;
