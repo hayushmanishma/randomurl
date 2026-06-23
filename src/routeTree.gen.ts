@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -25,6 +26,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/history': typeof HistoryRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/history'
     | '/leaderboard'
+    | '/reset-password'
     | '/search'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/history'
     | '/leaderboard'
+    | '/reset-password'
     | '/search'
     | '/settings'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/history'
     | '/leaderboard'
+    | '/reset-password'
     | '/search'
     | '/settings'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   HistoryRoute: typeof HistoryRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leaderboard': {
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   HistoryRoute: HistoryRoute,
   LeaderboardRoute: LeaderboardRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
 }

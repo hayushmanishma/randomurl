@@ -13,6 +13,15 @@ export const rollRandomSite = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
 
+    const claims = context.claims as { email?: string; name?: string; full_name?: string };
+    const fallbackName =
+      claims.full_name || claims.name || claims.email?.split("@")[0] || "משתמש";
+    const { error: profileError } = await (supabase as any).from("profiles").insert({
+      id: userId,
+      display_name: fallbackName,
+    });
+    if (profileError && profileError.code !== "23505") throw new Error("Failed to prepare profile");
+
     // banned check
     const { data: prof } = await supabase.from("profiles").select("banned, ban_reason").eq("id", userId).maybeSingle();
     if (prof && (prof as any).banned) {
@@ -30,14 +39,21 @@ export const rollRandomSite = createServerFn({ method: "POST" })
       throw new Error(`לאט יותר! נסה שוב בעוד דקה (מקס ${MAX_ROLLS_PER_MINUTE} בדקה).`);
     }
 
-    const pick = pickRandom(data.category);
+    const { data: recentRows } = await supabase
+      .from("roll_history")
+      .select("url")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(500);
+    const recentUrls = new Set(((recentRows ?? []) as { url: string }[]).map((row) => row.url));
+    const pick = pickRandom(data.category, recentUrls);
     const { error: insertError } = await (supabase as any).from("roll_history").insert({
       user_id: userId,
       url: pick.site.url,
       site_name: pick.site.name,
       rarity: pick.rarity,
       rarity_value: pick.rarityValue,
-      category: data.category ?? "all",
+      category: pick.category,
     });
     if (insertError) throw new Error("Failed to record history");
 
