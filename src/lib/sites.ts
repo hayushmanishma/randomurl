@@ -1,3 +1,5 @@
+import { SAFE_DOMAIN_PACK } from "./extra-site-pack";
+
 // Huge categorized site database. Safe-by-construction:
 // every entry comes from curated category seeds (Wikipedia topics,
 // GitHub topics, subreddit slugs, well-known domains). No user input
@@ -42,8 +44,24 @@ const RARITY_BUCKETS: { tier: Rarity; min: number; color: string; emoji: string 
 ];
 
 // --- safety filter -----------------------------------------------
-const BLOCKED = /\b(porn|xxx|sex|nsfw|nude|naked|adult|escort|onlyfans|cam(?:girl|boy)?|fetish|hentai|erotic|gore|isis|nazi|terror|kill|suicide|drug|cocaine|heroin|weed|marijuana|gun|weapon|gambling|casino|bet|poker)\b/i;
+const BLOCKED = /\b(porn|xxx|sex|nsfw|nude|naked|adult|escort|onlyfans|cam(?:girl|boy)?|fetish|hentai|erotic|gore|isis|nazi|terror|kill|suicide|drug|cocaine|heroin|weed|marijuana|gun|weapon|gambling|casino|bet|poker|wtf|fuck|damn|crap|crappy|newgrounds|4chan|kiwifarms)\b/i;
 const safe = (s: string) => !BLOCKED.test(s);
+
+export function isSafeSiteCandidate(value: string): boolean {
+  try {
+    const url = value.startsWith("http") ? new URL(value) : new URL(`https://${value}`);
+    return url.protocol === "https:" && safe(url.hostname) && safe(url.pathname);
+  } catch {
+    return false;
+  }
+}
+
+export function normalizeSiteUrl(value: string): string | null {
+  if (!isSafeSiteCandidate(value)) return null;
+  const url = value.startsWith("http") ? new URL(value) : new URL(`https://${value}`);
+  url.hash = "";
+  return url.toString().replace(/\/$/, "");
+}
 
 // ============================================================
 // CURATED HAND-PICKED — top tier (rarest)
@@ -432,7 +450,16 @@ function build(): Site[] {
     for (const [d, name] of RAW_DOMAINS[cat]) {
       if (!safe(name) || !safe(d)) continue;
       const url = d.startsWith("http") ? d : `https://${d}`;
-      out.push({ url, name, weight: 8, category: cat });
+      out.push({ url, name, weight: 24, category: cat });
+    }
+  }
+
+  // Large safe pack: official/curated sites only, still safety-filtered.
+  for (const cat of Object.keys(SAFE_DOMAIN_PACK) as Category[]) {
+    for (const [d, name] of SAFE_DOMAIN_PACK[cat]) {
+      const url = normalizeSiteUrl(d);
+      if (!url || !safe(name)) continue;
+      out.push({ url, name, weight: 20, category: cat });
     }
   }
 
@@ -443,7 +470,7 @@ function build(): Site[] {
       out.push({
         url: `https://en.wikipedia.org/wiki/${t}`,
         name: `Wikipedia: ${t.replace(/_/g, " ")}`,
-        weight: 25,
+        weight: 4,
         category: cat,
       });
     }
@@ -456,7 +483,7 @@ function build(): Site[] {
       out.push({
         url: `https://www.reddit.com/r/${s}`,
         name: `r/${s}`,
-        weight: 22,
+        weight: 3,
         category: cat,
       });
     }
@@ -469,7 +496,7 @@ function build(): Site[] {
       out.push({
         url: `https://github.com/topics/${t}`,
         name: `GitHub: ${t}`,
-        weight: 18,
+        weight: 5,
         category: cat,
       });
     }
@@ -503,11 +530,13 @@ export function countByCategory(): Record<Category, number> {
   return out;
 }
 
-export function pickRandom(category?: Category | null): {
+export function pickRandom(category?: Category | null, excludedUrls: Set<string> = new Set()): {
   site: Site; index: number; rarityValue: number; rarity: Rarity; color: string; emoji: string; category: Category;
 } {
-  const pool = category ? SITES.filter(s => s.category === category) : SITES;
-  const total = totalForCategory(category ?? null);
+  const fullPool = category ? SITES.filter(s => s.category === category) : SITES;
+  const freshPool = fullPool.filter(s => !excludedUrls.has(s.url));
+  const pool = freshPool.length > 0 ? freshPool : fullPool;
+  const total = pool.reduce((sum, s) => sum + s.weight, 0);
   const r = Math.random() * total;
   let acc = 0;
   let chosen = pool[0];
